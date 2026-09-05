@@ -84,12 +84,18 @@
     </div>
 
     <!-- Global Actions -->
-    <div class="flex items-center gap-2.5">
-      <button id="exportImportBtn" class="px-2.5 py-1.5 rounded text-xs font-medium text-ink-secondary hover:text-ink-primary border border-borderline hover:bg-subtle transition-colors flex items-center gap-1.5" title="Export or import protocol dataset">
+    <div class="flex items-center gap-2">
+      <!-- Sync Status Pill -->
+      <button id="cloudSyncHeaderBtn" class="px-2.5 py-1.5 rounded text-xs font-mono border border-borderline hover:bg-subtle transition-colors flex items-center gap-1.5" title="Cloud Sync Status (GitHub Gist)">
+        <span id="syncIndicatorDot" class="w-2 h-2 rounded-full bg-ink-tertiary"></span>
+        <span id="syncIndicatorText" class="text-ink-secondary text-[11px]">Local Only</span>
+      </button>
+
+      <button id="exportImportBtn" class="px-2.5 py-1.5 rounded text-xs font-medium text-ink-secondary hover:text-ink-primary border border-borderline hover:bg-subtle transition-colors flex items-center gap-1.5" title="Export, import, or cloud sync dataset">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
         </svg>
-        <span class="hidden md:inline">Data Backup</span>
+        <span class="hidden md:inline">Data Hub</span>
       </button>
 
       <div class="h-4 w-px bg-borderline mx-1"></div>
@@ -398,30 +404,117 @@
     </div>
   </div>
 
-  <!-- MODAL: DATA BACKUP / EXPORT / IMPORT -->
+  <!-- MODAL: DATA HUB / CLOUD SYNC / BACKUP -->
   <div id="dataModal" class="fixed inset-0 bg-ink-primary/30 z-50 hidden backdrop-blur-[1px] items-center justify-center p-4">
-    <div class="bg-surface border border-borderline rounded-lg w-full max-w-lg shadow-xl overflow-hidden">
-      <div class="p-4 border-b border-borderline flex items-center justify-between bg-subtle">
-        <h2 class="text-sm font-semibold text-ink-primary">Data Backup & Migration Hub</h2>
-        <button id="closeDataModalBtn" class="text-ink-tertiary hover:text-ink-primary p-1">✕</button>
+    <div class="bg-surface border border-borderline rounded-lg w-full max-w-lg shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="p-4 border-b border-borderline flex items-center justify-between bg-subtle shrink-0">
+        <div class="flex items-center gap-2">
+          <h2 class="text-sm font-semibold text-ink-primary">Data Hub & Multi-Device Sync</h2>
+        </div>
+        <button id="closeDataModalBtn" class="text-ink-tertiary hover:text-ink-primary p-1 rounded">✕</button>
       </div>
-      <div class="p-5 space-y-4 text-xs">
-        <p class="text-ink-secondary leading-relaxed">
-          Your protocols and observation logs are preserved in your local browser environment. You can export the raw schema-formatted JSON or import historical trials.
-        </p>
 
-        <div class="space-y-2">
-          <button id="downloadJsonBtn" class="w-full py-2 px-3 border border-borderline rounded bg-subtle hover:bg-white text-ink-primary font-mono text-xs flex items-center justify-center gap-2 transition-colors">
-            <svg class="w-4 h-4 text-ink-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-            </svg>
-            <span>Download All Protocols (.json)</span>
-          </button>
+      <div class="p-5 space-y-5 text-xs overflow-y-auto">
+        <!-- SECTION 1: GITHUB GIST CLOUD SYNC -->
+        <div class="p-4 bg-subtle border border-borderline rounded-lg space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-ink-primary" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+              </svg>
+              <h3 class="text-xs font-semibold text-ink-primary">GitHub Gist Cloud Sync</h3>
+            </div>
+            <span id="gistStatusBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-white border border-borderline"></span>
+          </div>
+
+          <p class="text-ink-secondary leading-relaxed">
+            Synchronize your experiments and field logs across all your devices using a private GitHub Gist as your zero-maintenance cloud database.
+          </p>
+
+          <!-- Connected Panel -->
+          <div id="gistConnectedPanel" class="space-y-3 pt-1 hidden">
+            <div class="p-3 bg-white border border-emerald-300 rounded space-y-1.5 font-mono text-[11px]">
+              <div class="flex items-center justify-between">
+                <span class="text-emerald-800 font-bold flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active Cloud Link
+                </span>
+                <a id="gistLink" href="#" target="_blank" class="text-accent hover:underline flex items-center gap-1 text-[10px]">
+                  <span>View Gist</span>
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+              </div>
+              <div class="text-ink-secondary text-[10px]">GIST ID: <span id="gistIdDisplay" class="text-ink-primary font-semibold select-all"></span></div>
+              <div class="text-ink-secondary text-[10px]">LAST SYNC: <span id="gistLastSyncDisplay" class="text-ink-primary"></span></div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button type="button" id="gistSyncNowBtn" class="flex-1 py-1.5 px-3 bg-accent text-white rounded font-medium hover:bg-accent-hover transition-colors shadow-sm flex items-center justify-center gap-1.5 text-xs">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <span>Sync Now (Pull & Push)</span>
+              </button>
+              <button type="button" id="gistDisconnectBtn" class="py-1.5 px-3 border border-borderline text-ink-secondary hover:text-rose-600 hover:bg-rose-50 rounded transition-colors text-xs">
+                Disconnect
+              </button>
+            </div>
+          </div>
+
+          <!-- Connect Form -->
+          <form id="gistConnectForm" class="space-y-3 pt-1">
+            <div class="space-y-1">
+              <div class="flex items-center justify-between">
+                <label class="font-mono text-ink-secondary block text-[10px]">PERSONAL ACCESS TOKEN (PAT) *</label>
+                <a href="https://github.com/settings/tokens/new?scopes=gist&description=Experilife+App+Sync" target="_blank" class="text-[10px] text-accent hover:underline flex items-center gap-0.5">
+                  <span>Generate Token</span> ↗
+                </a>
+              </div>
+              <div class="relative">
+                <input id="gistTokenInput" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" required class="w-full px-3 py-1.5 pr-8 bg-white border border-borderline rounded text-ink-primary font-mono text-xs focus:outline-none focus:border-accent">
+                <button type="button" id="toggleTokenVisibilityBtn" class="absolute right-2.5 top-2 text-ink-tertiary hover:text-ink-primary text-xs" title="Show/Hide Token">👁</button>
+              </div>
+              <p class="text-[10px] text-ink-tertiary leading-relaxed">
+                Requires only the <code>gist</code> permission scope. Stored strictly in your local browser storage.
+              </p>
+            </div>
+
+            <div class="space-y-1">
+              <label class="font-mono text-ink-secondary block text-[10px]">GIST ID (OPTIONAL)</label>
+              <input id="gistCustomIdInput" type="text" placeholder="Leave blank to auto-detect or create" class="w-full px-3 py-1.5 bg-white border border-borderline rounded text-ink-primary font-mono text-xs focus:outline-none focus:border-accent">
+              <p class="text-[10px] text-ink-tertiary leading-relaxed">
+                When connecting a new device, leave empty to automatically find your existing cloud data.
+              </p>
+            </div>
+
+            <button type="submit" id="gistConnectSubmitBtn" class="w-full py-2 px-3 bg-accent text-white rounded font-medium hover:bg-accent-hover transition-colors shadow-sm flex items-center justify-center gap-2 text-xs">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+              <span>Connect GitHub Gist & Sync</span>
+            </button>
+          </form>
         </div>
 
-        <div class="pt-2 border-t border-borderline space-y-2">
-          <label class="font-mono text-ink-secondary block">RESTORE / IMPORT DATA</label>
-          <input type="file" id="importFileInput" accept=".json" class="w-full text-xs text-ink-secondary file:mr-3 file:py-1.5 file:px-3 file:rounded file:border file:border-borderline file:text-xs file:font-medium file:bg-surface file:text-ink-primary hover:file:bg-subtle">
+        <!-- SECTION 2: MANUAL JSON BACKUP & RESTORE -->
+        <div class="p-4 bg-white border border-borderline rounded-lg space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-ink-primary">Local JSON Snapshot</h3>
+            <span class="text-[10px] font-mono text-ink-tertiary">Offline File</span>
+          </div>
+
+          <p class="text-ink-secondary leading-relaxed">
+            Download a raw JSON snapshot for cold offline storage or restore historical trial data.
+          </p>
+
+          <div class="space-y-2">
+            <button id="downloadJsonBtn" type="button" class="w-full py-2 px-3 border border-borderline rounded bg-subtle hover:bg-white text-ink-primary font-mono text-xs flex items-center justify-center gap-2 transition-colors">
+              <svg class="w-4 h-4 text-ink-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
+              <span>Export Raw JSON Backup</span>
+            </button>
+          </div>
+
+          <div class="pt-2 border-t border-borderline space-y-1">
+            <label class="font-mono text-ink-secondary block text-[10px]">RESTORE FROM JSON FILE</label>
+            <input type="file" id="importFileInput" accept=".json" class="w-full text-xs text-ink-secondary file:mr-3 file:py-1.5 file:px-3 file:rounded file:border file:border-borderline file:text-xs file:font-medium file:bg-surface file:text-ink-primary hover:file:bg-subtle">
+          </div>
         </div>
       </div>
     </div>
@@ -684,6 +777,7 @@ create table protocol_logs (
             });
           }
           this.saveProtocolsToStorage();
+          if (typeof GistSyncEngine !== 'undefined') GistSyncEngine.schedulePush();
           return protocol;
         },
 
@@ -692,6 +786,7 @@ create table protocol_logs (
           this.logsCache = this.logsCache.filter(l => l.protocol_id !== id);
           this.saveProtocolsToStorage();
           this.saveLogsToStorage();
+          if (typeof GistSyncEngine !== 'undefined') GistSyncEngine.schedulePush();
         },
 
         getLogsByProtocol(protocolId) {
@@ -712,11 +807,13 @@ create table protocol_logs (
             });
           }
           this.saveLogsToStorage();
+          if (typeof GistSyncEngine !== 'undefined') GistSyncEngine.schedulePush();
         },
 
         deleteLog(id) {
           this.logsCache = this.logsCache.filter(l => l.id !== id);
           this.saveLogsToStorage();
+          if (typeof GistSyncEngine !== 'undefined') GistSyncEngine.schedulePush();
         },
 
         exportAllData() {
@@ -728,15 +825,295 @@ create table protocol_logs (
           };
         },
 
-        importAllData(payload) {
+        importAllData(payload, options = {}) {
           if (payload && Array.isArray(payload.protocols) && Array.isArray(payload.logs)) {
             this.protocolsCache = payload.protocols;
             this.logsCache = payload.logs;
             this.saveProtocolsToStorage();
             this.saveLogsToStorage();
+            if (!options.skipGistPush && typeof GistSyncEngine !== 'undefined') {
+              GistSyncEngine.schedulePush();
+            }
             return true;
           }
           return false;
+        }
+      };
+
+      // -------------------------------------------------------------
+      // GITHUB GIST CLOUD SYNC ENGINE (Multi-Device Persistence)
+      // -------------------------------------------------------------
+      const GistSyncEngine = {
+        STORAGE_KEY_TOKEN: 'experilife_gist_token',
+        STORAGE_KEY_GIST_ID: 'experilife_gist_id',
+        STORAGE_KEY_LAST_SYNC: 'experilife_gist_last_sync',
+        GIST_FILENAME: 'experilife_storage.json',
+        GIST_DESC: 'Empirical Sandbox // Experilife Storage',
+
+        token: null,
+        gistId: null,
+        lastSyncTime: null,
+        status: 'idle', // 'idle', 'syncing', 'synced', 'error'
+        statusMsg: '',
+        pushDebounceTimer: null,
+
+        init() {
+          this.token = localStorage.getItem(this.STORAGE_KEY_TOKEN) || null;
+          this.gistId = localStorage.getItem(this.STORAGE_KEY_GIST_ID) || null;
+          this.lastSyncTime = localStorage.getItem(this.STORAGE_KEY_LAST_SYNC) || null;
+
+          this.updateUI();
+
+          if (this.token && this.gistId) {
+            // Background pull on startup to fetch changes from other devices
+            this.pull({ silent: true });
+          }
+        },
+
+        isConnected() {
+          return Boolean(this.token && this.gistId);
+        },
+
+        async connect(token, optCustomGistId) {
+          if (!token || !token.trim()) throw new Error('Personal Access Token is required.');
+          const cleanToken = token.trim();
+          this.setStatus('syncing', 'Connecting to GitHub...');
+
+          // 1. Validate Token with GitHub User API
+          const userRes = await fetch('https://api.github.com/user', {
+            headers: {
+              'Authorization': `Bearer ${cleanToken}`,
+              'Accept': 'application/vnd.github+json'
+            }
+          });
+
+          if (!userRes.ok) {
+            this.setStatus('error', 'Unauthorized');
+            throw new Error(`GitHub token verification failed (${userRes.status}): Please check token and scopes.`);
+          }
+          const user = await userRes.json();
+
+          let targetGistId = optCustomGistId ? optCustomGistId.trim() : null;
+
+          // 2. If no Gist ID provided, auto-discover existing Gist
+          if (!targetGistId) {
+            try {
+              const gistsRes = await fetch('https://api.github.com/gists?per_page=100', {
+                headers: {
+                  'Authorization': `Bearer ${cleanToken}`,
+                  'Accept': 'application/vnd.github+json'
+                }
+              });
+              if (gistsRes.ok) {
+                const gists = await gistsRes.json();
+                const match = gists.find(g => g.description === this.GIST_DESC || (g.files && g.files[this.GIST_FILENAME]));
+                if (match) {
+                  targetGistId = match.id;
+                }
+              }
+            } catch(e) {
+              console.warn('Auto-discovery query failed, will proceed to create new Gist if needed.', e);
+            }
+          }
+
+          // 3. If still no Gist ID found, create a new private Gist
+          if (!targetGistId) {
+            const currentData = StorageRepository.exportAllData();
+            const createRes = await fetch('https://api.github.com/gists', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${cleanToken}`,
+                'Accept': 'application/vnd.github+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                description: this.GIST_DESC,
+                public: false,
+                files: {
+                  [this.GIST_FILENAME]: {
+                    content: JSON.stringify(currentData, null, 2)
+                  }
+                }
+              })
+            });
+
+            if (!createRes.ok) {
+              this.setStatus('error', 'Gist creation failed');
+              throw new Error(`Failed to create private GitHub Gist (${createRes.status}). Ensure token has 'gist' scope.`);
+            }
+            const created = await createRes.json();
+            targetGistId = created.id;
+          }
+
+          this.token = cleanToken;
+          this.gistId = targetGistId;
+          localStorage.setItem(this.STORAGE_KEY_TOKEN, cleanToken);
+          localStorage.setItem(this.STORAGE_KEY_GIST_ID, targetGistId);
+
+          // 4. Pull remote state & apply
+          await this.pull({ initial: true });
+          showToast(`Connected as @${user.login} to private Gist!`);
+          return { login: user.login, gistId: targetGistId };
+        },
+
+        disconnect() {
+          this.token = null;
+          this.gistId = null;
+          this.lastSyncTime = null;
+          localStorage.removeItem(this.STORAGE_KEY_TOKEN);
+          localStorage.removeItem(this.STORAGE_KEY_GIST_ID);
+          localStorage.removeItem(this.STORAGE_KEY_LAST_SYNC);
+          this.setStatus('idle', 'Local only');
+          this.updateUI();
+          showToast('Disconnected from GitHub Gist.');
+        },
+
+        async pull(options = {}) {
+          if (!this.isConnected()) return;
+          this.setStatus('syncing', 'Syncing from cloud...');
+          try {
+            const res = await fetch(`https://api.github.com/gists/${this.gistId}`, {
+              headers: {
+                'Authorization': `Bearer ${this.token}`,
+                'Accept': 'application/vnd.github+json'
+              }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const gist = await res.json();
+            const file = gist.files && gist.files[this.GIST_FILENAME];
+            if (file && file.content) {
+              const payload = JSON.parse(file.content);
+              if (payload && Array.isArray(payload.protocols)) {
+                // Apply cloud data if remote has protocols, or if local is empty/initial
+                const currentProtocols = StorageRepository.getProtocols();
+                if (payload.protocols.length > 0 || currentProtocols.length === 0) {
+                  StorageRepository.importAllData(payload, { skipGistPush: true });
+                  renderProtocolList();
+                  renderWorkspace();
+                }
+              }
+            }
+            this.lastSyncTime = new Date().toISOString();
+            localStorage.setItem(this.STORAGE_KEY_LAST_SYNC, this.lastSyncTime);
+            this.setStatus('synced', 'Cloud Synced');
+            if (!options.silent) {
+              showToast('Data synchronized from GitHub Gist.');
+            }
+          } catch(err) {
+            console.error('Gist pull failed:', err);
+            this.setStatus('error', 'Sync error');
+          }
+        },
+
+        schedulePush() {
+          if (!this.isConnected()) return;
+          if (this.pushDebounceTimer) clearTimeout(this.pushDebounceTimer);
+          this.setStatus('syncing', 'Saving to cloud...');
+          this.pushDebounceTimer = setTimeout(() => {
+            this.push();
+          }, 1200);
+        },
+
+        async push() {
+          if (!this.isConnected()) return;
+          this.setStatus('syncing', 'Saving to cloud...');
+          try {
+            const payload = StorageRepository.exportAllData();
+            const res = await fetch(`https://api.github.com/gists/${this.gistId}`, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${this.token}`,
+                'Accept': 'application/vnd.github+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                description: this.GIST_DESC,
+                files: {
+                  [this.GIST_FILENAME]: {
+                    content: JSON.stringify(payload, null, 2)
+                  }
+                }
+              })
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            this.lastSyncTime = new Date().toISOString();
+            localStorage.setItem(this.STORAGE_KEY_LAST_SYNC, this.lastSyncTime);
+            this.setStatus('synced', 'Cloud Synced');
+          } catch(err) {
+            console.error('Gist push failed:', err);
+            this.setStatus('error', 'Sync error');
+          }
+        },
+
+        setStatus(status, msg) {
+          this.status = status;
+          this.statusMsg = msg || '';
+          this.updateUI();
+        },
+
+        updateUI() {
+          const dot = document.getElementById('syncIndicatorDot');
+          const text = document.getElementById('syncIndicatorText');
+          const badge = document.getElementById('gistStatusBadge');
+          const connectedPanel = document.getElementById('gistConnectedPanel');
+          const connectForm = document.getElementById('gistConnectForm');
+          const idDisplay = document.getElementById('gistIdDisplay');
+          const link = document.getElementById('gistLink');
+          const lastSyncDisplay = document.getElementById('gistLastSyncDisplay');
+
+          if (!dot || !text) return;
+
+          if (!this.isConnected()) {
+            dot.className = 'w-2 h-2 rounded-full bg-ink-tertiary';
+            text.textContent = 'Local Only';
+            text.className = 'text-ink-secondary text-[11px]';
+            if (badge) {
+              badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-subtle text-ink-tertiary border border-borderline';
+              badge.textContent = 'Not Connected';
+            }
+            if (connectedPanel) connectedPanel.classList.add('hidden');
+            if (connectForm) connectForm.classList.remove('hidden');
+            return;
+          }
+
+          if (connectedPanel) connectedPanel.classList.remove('hidden');
+          if (connectForm) connectForm.classList.add('hidden');
+
+          if (idDisplay) idDisplay.textContent = this.gistId || '-';
+          if (link && this.gistId) {
+            link.href = `https://gist.github.com/${this.gistId}`;
+          }
+          if (lastSyncDisplay) {
+            lastSyncDisplay.textContent = this.lastSyncTime 
+              ? new Date(this.lastSyncTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) 
+              : 'Pending';
+          }
+
+          if (this.status === 'syncing') {
+            dot.className = 'w-2 h-2 rounded-full bg-accent animate-ping';
+            text.textContent = 'Syncing...';
+            text.className = 'text-accent font-medium text-[11px]';
+            if (badge) {
+              badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200';
+              badge.textContent = 'Syncing...';
+            }
+          } else if (this.status === 'error') {
+            dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+            text.textContent = 'Sync Error';
+            text.className = 'text-rose-600 font-medium text-[11px]';
+            if (badge) {
+              badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200';
+              badge.textContent = 'Error';
+            }
+          } else {
+            dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+            text.textContent = 'Cloud Synced';
+            text.className = 'text-emerald-700 font-medium text-[11px]';
+            if (badge) {
+              badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200';
+              badge.textContent = 'Active Sync';
+            }
+          }
         }
       };
 
@@ -1950,7 +2327,7 @@ create table protocol_logs (
       });
 
       // -------------------------------------------------------------
-      // BACKUP & SCHEMA DOCUMENTATION HANDLERS
+      // BACKUP, CLOUD SYNC & SCHEMA HANDLERS
       // -------------------------------------------------------------
       exportImportBtn.addEventListener('click', () => {
         dataModal.classList.remove('hidden');
@@ -1961,6 +2338,85 @@ create table protocol_logs (
         dataModal.classList.add('hidden');
         dataModal.classList.remove('flex');
       });
+
+      const cloudSyncHeaderBtn = document.getElementById('cloudSyncHeaderBtn');
+      const gistConnectForm = document.getElementById('gistConnectForm');
+      const gistTokenInput = document.getElementById('gistTokenInput');
+      const gistCustomIdInput = document.getElementById('gistCustomIdInput');
+      const toggleTokenVisibilityBtn = document.getElementById('toggleTokenVisibilityBtn');
+      const gistDisconnectBtn = document.getElementById('gistDisconnectBtn');
+      const gistSyncNowBtn = document.getElementById('gistSyncNowBtn');
+      const gistConnectSubmitBtn = document.getElementById('gistConnectSubmitBtn');
+
+      if (cloudSyncHeaderBtn) {
+        cloudSyncHeaderBtn.addEventListener('click', () => {
+          dataModal.classList.remove('hidden');
+          dataModal.classList.add('flex');
+        });
+      }
+
+      if (toggleTokenVisibilityBtn) {
+        toggleTokenVisibilityBtn.addEventListener('click', () => {
+          if (gistTokenInput.type === 'password') {
+            gistTokenInput.type = 'text';
+            toggleTokenVisibilityBtn.textContent = '🔒';
+          } else {
+            gistTokenInput.type = 'password';
+            toggleTokenVisibilityBtn.textContent = '👁';
+          }
+        });
+      }
+
+      if (gistConnectForm) {
+        gistConnectForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const token = gistTokenInput.value.trim();
+          const customId = gistCustomIdInput.value.trim();
+          if (!token) return;
+
+          gistConnectSubmitBtn.disabled = true;
+          gistConnectSubmitBtn.innerHTML = '<span>Verifying token & syncing...</span>';
+
+          try {
+            await GistSyncEngine.connect(token, customId);
+            gistTokenInput.value = '';
+            gistCustomIdInput.value = '';
+          } catch(err) {
+            alert('Cloud Sync Connection Error: ' + err.message);
+          } finally {
+            gistConnectSubmitBtn.disabled = false;
+            gistConnectSubmitBtn.innerHTML = `
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+              <span>Connect GitHub Gist & Sync</span>
+            `;
+          }
+        });
+      }
+
+      if (gistDisconnectBtn) {
+        gistDisconnectBtn.addEventListener('click', () => {
+          if (confirm('Disconnect GitHub Gist sync from this device?\n\nYour local data and the remote Gist will remain safe, but automatic cloud synchronization will be paused on this device.')) {
+            GistSyncEngine.disconnect();
+          }
+        });
+      }
+
+      if (gistSyncNowBtn) {
+        gistSyncNowBtn.addEventListener('click', async () => {
+          gistSyncNowBtn.disabled = true;
+          const origText = gistSyncNowBtn.innerHTML;
+          gistSyncNowBtn.innerHTML = '<span>Syncing...</span>';
+          try {
+            await GistSyncEngine.pull();
+            await GistSyncEngine.push();
+          } catch(e) {
+            console.error(e);
+          } finally {
+            gistSyncNowBtn.disabled = false;
+            gistSyncNowBtn.innerHTML = origText;
+          }
+        });
+      }
 
       downloadJsonBtn.addEventListener('click', () => {
         const payload = StorageRepository.exportAllData();
@@ -2034,6 +2490,7 @@ create table protocol_logs (
 
       // Initialize
       StorageRepository.init();
+      GistSyncEngine.init();
       const initialProtocols = StorageRepository.getProtocols();
       if (initialProtocols.length > 0) {
         selectedProtocolId = initialProtocols[0].id;

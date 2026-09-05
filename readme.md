@@ -290,6 +290,18 @@ saveLog(log): Voegt een dagelijkse check-in toe of bewerkt deze.
 
 exportAllData() / importAllData(payload): Volledige JSON export en import utility.
 
+4.1 Multi-Device Cloud Sync via GitHub Gist
+
+Voor gebruikers die de app op meerdere apparaten (mobiel, laptop, desktop) gebruiken zonder een complexe backend-server op te zetten, beschikt de applicatie over een ingebouwde `GistSyncEngine`:
+
+- **Werking:** Synchroniseert de state automatisch naar een private GitHub Gist (`experilife_storage.json`) onder jouw eigen GitHub account.
+- **Offline-First:** Data wordt altijd direct in `localStorage` opgeslagen voor instant laadtijden en offline beschikbaarheid. Zodra er een netwerkverbinding is, wordt er op de achtergrond gepusht en gepulled.
+- **Setup:**
+  1. Genereer een GitHub Personal Access Token (classic of fine-grained) met alleen het `gist` permission scope (link direct beschikbaar in de modal).
+  2. Plak het token in het dialoogvenster **Data Hub & Multi-Device Sync**.
+  3. De app zoekt automatisch naar een bestaande Gist (`Empirical Sandbox // Experilife Storage`) of maakt automatisch een nieuwe private Gist aan.
+  4. Op een tweede device (bijv. smartphone) plak je hetzelfde token: de app herkent de Gist automatisch en laadt direct al je experimenten en logs.
+
 5. Handleiding voor Supabase Migratie
 
 Wanneer je als AI-ontwikkelaar de opdracht krijgt om over te schakelen op Supabase, volg dan dit stappenplan:
